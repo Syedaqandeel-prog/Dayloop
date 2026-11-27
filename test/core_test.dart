@@ -2,10 +2,10 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sukoon/core/achievements.dart';
-import 'package:sukoon/core/app_data.dart';
-import 'package:sukoon/core/dates.dart';
-import 'package:sukoon/core/models.dart';
+import 'package:dayloop/core/achievements.dart';
+import 'package:dayloop/core/app_data.dart';
+import 'package:dayloop/core/dates.dart';
+import 'package:dayloop/core/models.dart';
 
 /// Monday 2 Nov 2026, with Sunday as the Self-Care Day.
 AppData _setup() {

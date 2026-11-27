@@ -64,7 +64,7 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
           SnackBar(
             content: Row(
               children: [
-                const Icon(Icons.emoji_events_outlined, color: AppColors.peach),
+                Icon(Icons.emoji_events_outlined, color: AppColors.peach),
                 const SizedBox(width: 10),
                 Expanded(child: Text(n)),
               ],
@@ -80,36 +80,26 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: IndexedStack(
-        index: _tab,
-        children: [
-          TodayScreen(onOpenHabits: () => _openTab(1)),
-          const HabitsScreen(),
-          const AchievementsScreen(),
-          const ProfileScreen(),
-        ],
-      ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _tab,
-        onDestinationSelected: _openTab,
-        backgroundColor: AppColors.card,
-        indicatorColor: AppColors.accentSoft,
-        surfaceTintColor: AppColors.card,
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.today_outlined), selectedIcon: Icon(Icons.today), label: 'Today'),
-          NavigationDestination(
-            icon: Icon(Icons.checklist_rounded),
-            selectedIcon: Icon(Icons.checklist_rounded),
-            label: 'Habits',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.emoji_events_outlined),
-            selectedIcon: Icon(Icons.emoji_events),
-            label: 'Achievements',
-          ),
-          NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'Me'),
-        ],
+    // Rebuild the shell (and its bar) when the theme or data changes.
+    StoreScope.of(context);
+    // Back button: from any other tab go to Today first; from Today, close the app.
+    return PopScope(
+      canPop: _tab == 0,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop && _tab != 0) _openTab(0);
+      },
+      child: Scaffold(
+        extendBody: true,
+        body: IndexedStack(
+          index: _tab,
+          children: [
+            TodayScreen(onOpenHabits: () => _openTab(1), onOpenProfile: () => _openTab(3)),
+            const HabitsScreen(),
+            const AchievementsScreen(),
+            const ProfileScreen(),
+          ],
+        ),
+        bottomNavigationBar: _BottomBar(index: _tab, onSelect: _openTab),
       ),
     );
   }
@@ -144,6 +134,87 @@ class TabHeader extends StatelessWidget {
           ),
           if (action != null) action!,
         ],
+      ),
+    );
+  }
+}
+
+/// Floating pill navigation on the hero colour. The active tab shows its
+/// icon and name on the highlight colour; the others show their icon only,
+/// all vertically centred on one line.
+class _BottomBar extends StatelessWidget {
+  const _BottomBar({required this.index, required this.onSelect});
+
+  final int index;
+  final ValueChanged<int> onSelect;
+
+  static const List<(IconData, IconData, String)> _items = [
+    (Icons.calendar_today_outlined, Icons.calendar_today_rounded, 'Today'),
+    (Icons.checklist_rounded, Icons.checklist_rounded, 'Habits'),
+    (Icons.emoji_events_outlined, Icons.emoji_events_rounded, 'Badges'),
+    (Icons.person_outline_rounded, Icons.person_rounded, 'Profile'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      top: false,
+      minimum: const EdgeInsets.only(bottom: 12),
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16),
+        height: 66,
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        decoration: BoxDecoration(
+          color: AppColors.night,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: const [BoxShadow(color: Color(0x38000000), blurRadius: 30, offset: Offset(0, 12))],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            for (var i = 0; i < _items.length; i++)
+              Semantics(
+                button: true,
+                selected: index == i,
+                label: _items[i].$3,
+                excludeSemantics: true,
+                child: Tooltip(
+                  message: _items[i].$3,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(18),
+                    onTap: () => onSelect(i),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 220),
+                      curve: Curves.easeOutCubic,
+                      height: 46,
+                      padding: EdgeInsets.symmetric(horizontal: index == i ? 16 : 13),
+                      decoration: BoxDecoration(
+                        color: index == i ? AppColors.peach : Colors.transparent,
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            index == i ? _items[i].$2 : _items[i].$1,
+                            size: 22,
+                            color: index == i ? AppColors.onPeach : AppColors.nightSoft,
+                          ),
+                          if (index == i) ...[
+                            const SizedBox(width: 7),
+                            Text(
+                              _items[i].$3,
+                              style: AppText.body(14, weight: FontWeight.w800, color: AppColors.onPeach, height: 1),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

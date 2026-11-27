@@ -102,7 +102,7 @@ class _FocusScreenState extends State<FocusScreen> with SingleTickerProviderStat
                     icon: Icons.close_rounded,
                     tooltip: 'Close',
                     background: AppColors.night,
-                    foreground: AppColors.white,
+                    foreground: AppColors.nightInk,
                     borderColor: AppColors.whiteFaint,
                     onPressed: () => Navigator.of(context).pop(),
                   ),
@@ -124,7 +124,7 @@ class _FocusScreenState extends State<FocusScreen> with SingleTickerProviderStat
                           child: Text(
                             widget.title,
                             textAlign: TextAlign.center,
-                            style: AppText.display(30, color: AppColors.white),
+                            style: AppText.display(30, color: AppColors.nightInk),
                           ),
                         ),
                         const SizedBox(height: 28),
@@ -154,14 +154,14 @@ class _FocusScreenState extends State<FocusScreen> with SingleTickerProviderStat
                                       Container(
                                         width: size,
                                         height: size,
-                                        decoration: const BoxDecoration(
-                                          color: Color(0xFF4C5AA3),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.peach.withAlpha(0x40),
                                           shape: BoxShape.circle,
                                         ),
                                         alignment: Alignment.center,
                                         child: Text(
                                           _running ? (inhale ? 'Breathe in' : 'Breathe out') : 'Paused',
-                                          style: AppText.body(16, weight: FontWeight.w600, color: AppColors.white),
+                                          style: AppText.body(16, weight: FontWeight.w600, color: AppColors.nightInk),
                                         ),
                                       ),
                                     ],
@@ -174,7 +174,7 @@ class _FocusScreenState extends State<FocusScreen> with SingleTickerProviderStat
                         const SizedBox(height: 28),
                         Text(
                           _format(_remaining),
-                          style: AppText.body(52, weight: FontWeight.w400, color: AppColors.white, height: 1),
+                          style: AppText.body(52, weight: FontWeight.w400, color: AppColors.nightInk, height: 1),
                         ),
                       ],
                     ),
@@ -189,7 +189,7 @@ class _FocusScreenState extends State<FocusScreen> with SingleTickerProviderStat
                     tooltip: 'Restart',
                     size: 56,
                     background: AppColors.night,
-                    foreground: AppColors.white,
+                    foreground: AppColors.nightInk,
                     borderColor: AppColors.whiteFaint,
                     onPressed: _restart,
                   ),
@@ -209,7 +209,7 @@ class _FocusScreenState extends State<FocusScreen> with SingleTickerProviderStat
                     tooltip: 'Finish now',
                     size: 56,
                     background: AppColors.night,
-                    foreground: AppColors.white,
+                    foreground: AppColors.nightInk,
                     borderColor: AppColors.whiteFaint,
                     onPressed: _complete,
                   ),

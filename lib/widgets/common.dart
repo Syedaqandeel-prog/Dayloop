@@ -52,7 +52,7 @@ class AppCard extends StatelessWidget {
     super.key,
     required this.child,
     this.padding = const EdgeInsets.all(16),
-    this.color = AppColors.card,
+    this.color,
     this.onTap,
     this.borderColor,
     this.radius = 22,
@@ -60,7 +60,7 @@ class AppCard extends StatelessWidget {
 
   final Widget child;
   final EdgeInsetsGeometry padding;
-  final Color color;
+  final Color? color;
   final VoidCallback? onTap;
   final Color? borderColor;
   final double radius;
@@ -72,7 +72,7 @@ class AppCard extends StatelessWidget {
       side: borderColor == null ? BorderSide.none : BorderSide(color: borderColor!),
     );
     return Material(
-      color: color,
+      color: color ?? AppColors.card,
       shape: shape,
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -104,18 +104,11 @@ class SectionLabel extends StatelessWidget {
 }
 
 class IconBubble extends StatelessWidget {
-  const IconBubble({
-    super.key,
-    required this.icon,
-    this.background = AppColors.accentSoft,
-    this.foreground = AppColors.accent,
-    this.size = 44,
-    this.radius = 14,
-  });
+  const IconBubble({super.key, required this.icon, this.background, this.foreground, this.size = 44, this.radius = 14});
 
   final IconData icon;
-  final Color background;
-  final Color foreground;
+  final Color? background;
+  final Color? foreground;
   final double size;
   final double radius;
 
@@ -124,9 +117,13 @@ class IconBubble extends StatelessWidget {
     return Container(
       width: size,
       height: size,
-      decoration: BoxDecoration(color: background, borderRadius: BorderRadius.circular(radius)),
+      decoration: BoxDecoration(color: background ?? AppColors.accentSoft, borderRadius: BorderRadius.circular(radius)),
       alignment: Alignment.center,
-      child: Icon(icon, color: foreground, size: size * 0.5),
+      child: Icon(
+        icon,
+        color: foreground ?? (AppColors.isDark ? AppColors.accent : AppColors.accentSoftInk),
+        size: size * 0.5,
+      ),
     );
   }
 }
@@ -138,34 +135,42 @@ class CircleIconButton extends StatelessWidget {
     required this.icon,
     required this.tooltip,
     required this.onPressed,
-    this.background = AppColors.card,
-    this.foreground = AppColors.ink,
-    this.borderColor = AppColors.line,
+    this.background,
+    this.foreground,
+    this.borderColor = kDefaultBorder,
     this.size = 44,
   });
+
+  /// Marker meaning "use the theme's line colour"; pass null for no border.
+  static const Color kDefaultBorder = Color(0x00000001);
 
   final IconData icon;
   final String tooltip;
   final VoidCallback? onPressed;
-  final Color background;
-  final Color foreground;
+  final Color? background;
+  final Color? foreground;
   final Color? borderColor;
   final double size;
 
   @override
   Widget build(BuildContext context) {
+    final border = borderColor == kDefaultBorder ? AppColors.line : borderColor;
     return Tooltip(
       message: tooltip,
       child: Material(
-        color: background,
-        shape: CircleBorder(side: borderColor == null ? BorderSide.none : BorderSide(color: borderColor!)),
+        color: background ?? AppColors.card,
+        shape: CircleBorder(side: border == null ? BorderSide.none : BorderSide(color: border)),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onPressed,
           child: SizedBox(
             width: size,
             height: size,
-            child: Icon(icon, size: size * 0.42, color: foreground),
+            child: Icon(
+              icon,
+              size: size * 0.42,
+              color: onPressed == null ? AppColors.muted : (foreground ?? AppColors.ink),
+            ),
           ),
         ),
       ),
@@ -233,17 +238,11 @@ class ChoicePill extends StatelessWidget {
 
 /// A rounded progress bar.
 class SoftProgressBar extends StatelessWidget {
-  const SoftProgressBar({
-    super.key,
-    required this.value,
-    this.color = AppColors.accent,
-    this.track = AppColors.sandDeep,
-    this.height = 8,
-  });
+  const SoftProgressBar({super.key, required this.value, this.color, this.track, this.height = 8});
 
   final double value;
-  final Color color;
-  final Color track;
+  final Color? color;
+  final Color? track;
   final double height;
 
   @override
@@ -253,8 +252,8 @@ class SoftProgressBar extends StatelessWidget {
       child: LinearProgressIndicator(
         value: value.clamp(0.0, 1.0),
         minHeight: height,
-        color: color,
-        backgroundColor: track,
+        color: color ?? AppColors.accent,
+        backgroundColor: track ?? AppColors.sandDeep,
       ),
     );
   }
@@ -292,4 +291,84 @@ Future<bool> confirmDialog(
     ),
   );
   return result ?? false;
+}
+
+/// Names of the bundled 3D emoji (Microsoft Fluent Emoji, MIT licence),
+/// stored in `assets/emoji/<name>.png`.
+const Set<String> kEmojiNames = {
+  'water', 'stretch', 'meditate', 'focus', 'food', 'walk', 'book', 'sleep', 'journal', 'workout', //
+  'sun', 'heart', 'spa', 'coffee', 'star', 'flame', 'flag', 'trophy', 'calendar', 'waves', 'lock', //
+  'mood1', 'mood2', 'mood3', 'mood4', 'mood5', 'mail',
+};
+
+/// Tile tint per emoji, so every habit type keeps one recognisable colour.
+const Map<String, Color> _emojiHue = {
+  'water': Color(0xFF2F80D1),
+  'stretch': Color(0xFF23935F),
+  'walk': Color(0xFF23935F),
+  'workout': Color(0xFF23935F),
+  'meditate': Color(0xFF7A5AD6),
+  'spa': Color(0xFF7A5AD6),
+  'waves': Color(0xFF2F80D1),
+  'book': Color(0xFFD4762C),
+  'journal': Color(0xFFD4762C),
+  'sleep': Color(0xFF4A57C4),
+  'focus': Color(0xFFD9453A),
+  'food': Color(0xFF23935F),
+  'coffee': Color(0xFFB0703A),
+  'sun': Color(0xFFE0A02A),
+  'heart': Color(0xFFD9466B),
+  'star': Color(0xFFE0A02A),
+  'flame': Color(0xFFE0702A),
+  'flag': Color(0xFFD9453A),
+  'trophy': Color(0xFFE0A02A),
+  'calendar': Color(0xFF4A57C4),
+  'mail': Color(0xFF2F80D1),
+  'lock': Color(0xFFE0A02A),
+};
+
+/// A realistic 3D emoji image. Falls back to a plain icon if the image is missing.
+class Emoji3D extends StatelessWidget {
+  const Emoji3D(this.name, {super.key, this.size = 28});
+
+  final String name;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!kEmojiNames.contains(name)) {
+      return Icon(appIcon(name), size: size, color: AppColors.accent);
+    }
+    return Image.asset(
+      'assets/emoji/$name.png',
+      width: size,
+      height: size,
+      filterQuality: FilterQuality.medium,
+      excludeFromSemantics: true,
+      errorBuilder: (_, __, ___) => Icon(appIcon(name), size: size, color: AppColors.accent),
+    );
+  }
+}
+
+/// Rounded, softly tinted tile holding a 3D emoji (habit and category icons).
+class EmojiTile extends StatelessWidget {
+  const EmojiTile(this.name, {super.key, this.size = 48});
+
+  final String name;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    final hue = _emojiHue[name] ?? AppColors.accent;
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: hue.withAlpha(AppColors.isDark ? 0x33 : 0x1F),
+        borderRadius: BorderRadius.circular(size * 0.33),
+      ),
+      alignment: Alignment.center,
+      child: Emoji3D(name, size: size * 0.62),
+    );
+  }
 }

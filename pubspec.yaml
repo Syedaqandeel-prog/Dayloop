@@ -1,37 +1,58 @@
-name: sukoon
-description: Habit and routine planner with mood-adaptive routines, a weekly Self-Care Day, badges and challenges.
+name: dayloop
+description: Dayloop — habit and routine planner with mood-adaptive routines, a weekly Self-Care Day, badges and challenges.
 publish_to: 'none'
 version: 1.0.0+1
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
 
-ddependencies:
+dependencies:
   flutter:
     sdk: flutter
   shared_preferences: ^2.2.3
-  shared_preferences_android: 2.4.29
-  
+  image_picker: ^1.1.2
+  url_launcher: ^6.3.0
+
+dependency_overrides:
+  # Android implementation 2.5.x (JNI based) fails to compile with some
+  # Flutter/jni combinations. 2.4.x uses Pigeon and builds reliably.
+  shared_preferences_android: ">=2.4.0 <2.5.0"
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: ^0.14.1
+
+# Run `dart run flutter_launcher_icons` once to generate the app icon.
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/branding/icon.png"
+  min_sdk_android: 21
+  adaptive_icon_background: "#2A1B3D"
+  adaptive_icon_foreground: "assets/branding/icon_foreground.png"
+  remove_alpha_ios: true
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/emoji/
   fonts:
-    - family: PlusJakartaSans
+    - family: Bricolage
       fonts:
-        - asset: assets/fonts/PlusJakartaSans-400.ttf
+        - asset: assets/fonts/Bricolage-400.ttf
           weight: 400
-        - asset: assets/fonts/PlusJakartaSans-500.ttf
+        - asset: assets/fonts/Bricolage-500.ttf
           weight: 500
-        - asset: assets/fonts/PlusJakartaSans-600.ttf
+        - asset: assets/fonts/Bricolage-600.ttf
           weight: 600
-        - asset: assets/fonts/PlusJakartaSans-700.ttf
+        - asset: assets/fonts/Bricolage-700.ttf
           weight: 700
-        - asset: assets/fonts/PlusJakartaSans-800.ttf
+        - asset: assets/fonts/Bricolage-800.ttf
           weight: 800
-    - family: Fraunces
+    - family: BricolageDisplay
       fonts:
-        - asset: assets/fonts/Fraunces-600.ttf
-          weight: 600
+        - asset: assets/fonts/BricolageDisplay-700.ttf
+          weight: 700
+        - asset: assets/fonts/BricolageDisplay-800.ttf
+          weight: 800

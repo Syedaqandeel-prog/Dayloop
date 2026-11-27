@@ -1,27 +1,57 @@
 import 'package:flutter/material.dart';
 
+import 'palettes.dart';
+
+export 'palettes.dart';
+
 /// App name in one place, so renaming the app is a one-line change.
 class AppConfig {
-  static const String appName = 'Sukoon';
+  static const String appName = 'Dayloop';
+  static const String version = '1.0.0';
+  static const String company = 'Innovexa Technologies';
+  static const String supportEmail = 'innovexa.technologies01@gmail.com';
+
+  /// Public web address of the privacy policy (fill in after hosting
+  /// `docs/privacy-policy.html`, e.g. on GitHub Pages). Empty = in-app only.
+  static const String privacyPolicyUrl = '';
 }
 
+/// The colours of the active scheme and mode.
+///
+/// [current] is set once per frame by the app root (see `main.dart`) before
+/// any screen builds, so every widget reads the same palette. Screens rebuild
+/// automatically when the user changes the scheme or mode, because they all
+/// listen to the app store.
 class AppColors {
-  static const Color sand = Color(0xFFF6F1EA);
-  static const Color sandDeep = Color(0xFFEADFD2);
-  static const Color card = Color(0xFFFFFFFF);
-  static const Color ink = Color(0xFF2A2320);
-  static const Color muted = Color(0xFF6B5E55);
-  static const Color line = Color(0xFFE3D9CC);
-  static const Color accent = Color(0xFF4A5BB8);
-  static const Color accentSoft = Color(0xFFECEEFB);
-  static const Color night = Color(0xFF2F3A78);
-  static const Color nightSoft = Color(0xFFD5DAF5);
-  static const Color peach = Color(0xFFF2C9A8);
-  static const Color success = Color(0xFF2E6B52);
-  static const Color successSoft = Color(0xFFE3F1EA);
-  static const Color warn = Color(0xFF9A4A1F);
-  static const Color warnSoft = Color(0xFFFBEBDD);
-  static const Color danger = Color(0xFFB3261E);
+  static Palette current = kSchemes.first.light;
+
+  static bool get isDark => current.isDark;
+  static Color get sand => current.sand;
+  static Color get sandDeep => current.sandDeep;
+  static Color get card => current.card;
+  static Color get ink => current.ink;
+  static Color get muted => current.muted;
+  static Color get line => current.line;
+  static Color get accent => current.accent;
+  static Color get onAccent => current.onAccent;
+  static Color get accentSoft => current.accentSoft;
+  static Color get accentSoftInk => current.accentSoftInk;
+  static Color get night => current.night;
+  static Color get nightInk => current.nightInk;
+  static Color get nightSoft => current.nightSoft;
+  static Color get peach => current.peach;
+  static Color get onPeach => current.onPeach;
+  static Color get success => current.success;
+  static Color get successSoft => current.successSoft;
+  static Color get warn => current.warn;
+  static Color get warnSoft => current.warnSoft;
+  static Color get danger => current.danger;
+  static Color get waterBg => current.waterBg;
+  static Color get waterInk => current.waterInk;
+  static Color get waterSub => current.waterSub;
+  static Color get waterBar => current.waterBar;
+  static Color get waterTrack => current.waterTrack;
+
   static const Color white = Color(0xFFFFFFFF);
   static const Color whiteFaint = Color(0x26FFFFFF);
 }
@@ -42,26 +72,35 @@ class Tone {
     'green': Tone(Color(0xFF7DBB9C), Color(0xFFE3F1EA), Color(0xFF2E6B52)),
   };
 
-  static const Tone locked = Tone(Color(0xFFE3D9CC), Color(0xFFF3EEE8), Color(0xFF8A7D72));
+  static Tone get locked => AppColors.isDark
+      ? const Tone(Color(0xFF4A4550), Color(0xFF26222B), Color(0xFF9C95A6))
+      : const Tone(Color(0xFFE3D9CC), Color(0xFFF3EEE8), Color(0xFF8A7D72));
 
-  static Tone of(String name) => all[name] ?? all['indigo']!;
+  /// In dark mode the light tints become deep tints of the same hue.
+  static Tone of(String name) {
+    final t = all[name] ?? all['indigo']!;
+    if (!AppColors.isDark) return t;
+    return Tone(t.ring, t.ring.withAlpha(0x33), t.ring);
+  }
 }
 
 class AppText {
-  static const String sans = 'PlusJakartaSans';
-  static const String serif = 'Fraunces';
+  static const String sans = 'Bricolage';
+  static const String serif = 'BricolageDisplay';
 
-  static TextStyle display(double size, {Color color = AppColors.ink}) =>
-      TextStyle(fontFamily: serif, fontSize: size, fontWeight: FontWeight.w600, height: 1.15, color: color);
+  static TextStyle display(double size, {Color? color}) => TextStyle(
+    fontFamily: serif,
+    fontSize: size,
+    fontWeight: FontWeight.w800,
+    height: 1.1,
+    letterSpacing: -0.02 * size,
+    color: color ?? AppColors.ink,
+  );
 
-  static TextStyle body(
-    double size, {
-    FontWeight weight = FontWeight.w400,
-    Color color = AppColors.ink,
-    double height = 1.4,
-  }) => TextStyle(fontFamily: sans, fontSize: size, fontWeight: weight, color: color, height: height);
+  static TextStyle body(double size, {FontWeight weight = FontWeight.w400, Color? color, double height = 1.4}) =>
+      TextStyle(fontFamily: sans, fontSize: size, fontWeight: weight, color: color ?? AppColors.ink, height: height);
 
-  static const TextStyle label = TextStyle(
+  static TextStyle get label => TextStyle(
     fontFamily: sans,
     fontSize: 12,
     fontWeight: FontWeight.w700,
@@ -71,24 +110,31 @@ class AppText {
 }
 
 class AppTheme {
-  static ThemeData light() {
+  static ThemeData build(Palette p) {
+    final brightness = p.isDark ? Brightness.dark : Brightness.light;
     final scheme = ColorScheme.fromSeed(
-      seedColor: AppColors.accent,
-      primary: AppColors.accent,
-      surface: AppColors.sand,
+      seedColor: p.accent,
+      brightness: brightness,
+      primary: p.accent,
+      onPrimary: p.onAccent,
+      surface: p.sand,
+      onSurface: p.ink,
+      error: p.danger,
     );
     return ThemeData(
       useMaterial3: true,
+      brightness: brightness,
       colorScheme: scheme,
       fontFamily: AppText.sans,
-      scaffoldBackgroundColor: AppColors.sand,
+      scaffoldBackgroundColor: p.sand,
+      canvasColor: p.sand,
       splashFactory: InkSparkle.splashFactory,
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          backgroundColor: AppColors.accent,
-          foregroundColor: AppColors.white,
-          disabledBackgroundColor: AppColors.line,
-          disabledForegroundColor: AppColors.muted,
+          backgroundColor: p.accent,
+          foregroundColor: p.onAccent,
+          disabledBackgroundColor: p.line,
+          disabledForegroundColor: p.muted,
           minimumSize: const Size(0, 54),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
           textStyle: const TextStyle(fontFamily: AppText.sans, fontSize: 16, fontWeight: FontWeight.w700),
@@ -96,41 +142,42 @@ class AppTheme {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.ink,
+          foregroundColor: p.ink,
           minimumSize: const Size(0, 54),
-          side: const BorderSide(color: AppColors.line),
-          backgroundColor: AppColors.card,
+          side: BorderSide(color: p.line),
+          backgroundColor: p.card,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
           textStyle: const TextStyle(fontFamily: AppText.sans, fontSize: 15, fontWeight: FontWeight.w700),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: AppColors.accent,
+          foregroundColor: p.isDark ? p.accent : p.accentSoftInk,
           textStyle: const TextStyle(fontFamily: AppText.sans, fontSize: 14, fontWeight: FontWeight.w700),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: AppColors.card,
+        fillColor: p.card,
+        hintStyle: TextStyle(color: p.muted),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: AppColors.line),
+          borderSide: BorderSide(color: p.line),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: AppColors.line),
+          borderSide: BorderSide(color: p.line),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: AppColors.accent, width: 1.5),
+          borderSide: BorderSide(color: p.accent, width: 1.5),
         ),
       ),
-      snackBarTheme: const SnackBarThemeData(
+      snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
-        backgroundColor: AppColors.ink,
-        contentTextStyle: TextStyle(fontFamily: AppText.sans, color: AppColors.white, fontSize: 14),
+        backgroundColor: p.night,
+        contentTextStyle: TextStyle(fontFamily: AppText.sans, color: p.nightInk, fontSize: 14),
       ),
     );
   }

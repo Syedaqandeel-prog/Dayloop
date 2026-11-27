@@ -10,24 +10,72 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   final store = await AppStore.load();
-  runApp(SukoonApp(store: store));
+  runApp(DayloopApp(store: store));
 }
 
-class SukoonApp extends StatelessWidget {
-  const SukoonApp({super.key, required this.store});
+class DayloopApp extends StatefulWidget {
+  const DayloopApp({super.key, required this.store});
 
   final AppStore store;
 
   @override
+  State<DayloopApp> createState() => _DayloopAppState();
+}
+
+class _DayloopAppState extends State<DayloopApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  /// The phone switched between light and dark: follow it in "System" mode.
+  @override
+  void didChangePlatformBrightness() {
+    if (widget.store.data.themeMode == 'system') {
+      widget.store.update((_) {});
+    }
+  }
+
+  bool _isDark() {
+    switch (widget.store.data.themeMode) {
+      case 'dark':
+        return true;
+      case 'light':
+        return false;
+      default:
+        return WidgetsBinding.instance.platformDispatcher.platformBrightness == Brightness.dark;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return StoreScope(
-      store: store,
-      child: MaterialApp(
-        title: AppConfig.appName,
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.light(),
-        home: const RootGate(),
-      ),
+    return ListenableBuilder(
+      listenable: widget.store,
+      builder: (context, _) {
+        final palette = schemeById(widget.store.data.schemeId).of(_isDark());
+        // Set before any screen builds in this frame.
+        AppColors.current = palette;
+        return StoreScope(
+          store: widget.store,
+          child: MaterialApp(
+            title: AppConfig.appName,
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.build(palette),
+            builder: (context, child) => AnnotatedRegion<SystemUiOverlayStyle>(
+              value: palette.isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+              child: child ?? const SizedBox.shrink(),
+            ),
+            home: const RootGate(),
+          ),
+        );
+      },
     );
   }
 }

@@ -28,6 +28,15 @@ class AppData {
 
   bool onboarded = false;
   String name = '';
+
+  /// 'system', 'light' or 'dark'.
+  String themeMode = 'dark';
+
+  /// Id of the colour scheme chosen in Settings.
+  String schemeId = 'p1';
+
+  /// Profile photo as base64 JPEG (small, resized on pick), or empty.
+  String photoBase64 = '';
   String firstUseKey;
   int waterGoal = 8;
 
@@ -493,6 +502,12 @@ class AppData {
     final data = AppData(firstUseKey: firstUse is String && tryParseDayKey(firstUse) != null ? firstUse : dayKey(now));
     data.onboarded = json['onboarded'] == true;
     data.name = json['name'] is String ? json['name'] as String : '';
+    final mode = json['themeMode'];
+    data.themeMode = mode == 'light' || mode == 'system' ? mode as String : 'dark';
+    final scheme = json['schemeId'];
+    data.schemeId = scheme is String && scheme.isNotEmpty ? scheme : 'p1';
+    final photo = json['photo'];
+    data.photoBase64 = photo is String ? photo : '';
     final goal = json['waterGoal'];
     data.waterGoal = goal is num ? goal.toInt().clamp(1, 20) : 8;
 

@@ -5,9 +5,6 @@ analyzer:
     # material.dart on purpose so the app builds on both older and newer
     # Flutter versions. Everything else is checked normally.
     deprecated_member_use: ignore
-  exclude:
-    - build/**
-    - web/**
   language:
     strict-casts: true
     strict-raw-types: true

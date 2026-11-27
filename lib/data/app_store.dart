@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,7 +13,7 @@ import '../core/dates.dart';
 class AppStore extends ChangeNotifier {
   AppStore._(this._prefs, this._data);
 
-  static const String _storageKey = 'sukoon_app_data_v1';
+  static const String _storageKey = 'sukoon_app_data_v1'; // kept so existing data survives the rename
 
   final SharedPreferences _prefs;
   AppData _data;
@@ -20,6 +21,24 @@ class AppStore extends ChangeNotifier {
   final List<String> _notices = [];
 
   AppData get data => _data;
+
+  Uint8List? _photoBytes;
+  String _photoSource = '';
+
+  /// Decoded profile photo, cached so it is not decoded on every rebuild.
+  Uint8List? get photoBytes {
+    final b64 = _data.photoBase64;
+    if (b64.isEmpty) return null;
+    if (b64 != _photoSource) {
+      _photoSource = b64;
+      try {
+        _photoBytes = base64Decode(b64);
+      } catch (_) {
+        _photoBytes = null;
+      }
+    }
+    return _photoBytes;
+  }
 
   DateTime get today => dateOnly(DateTime.now());
 

@@ -79,68 +79,75 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-              child: SizedBox(
-                height: 48,
-                child: Row(
+    // Back goes to the previous onboarding step; on the first step it closes the app.
+    return PopScope(
+      canPop: _page == 0,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop && _page > 0) _goTo(_page - 1);
+      },
+      child: Scaffold(
+        body: SafeArea(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                child: SizedBox(
+                  height: 48,
+                  child: Row(
+                    children: [
+                      if (_page > 0)
+                        CircleIconButton(
+                          icon: Icons.arrow_back_rounded,
+                          tooltip: 'Back',
+                          onPressed: () => _goTo(_page - 1),
+                        ),
+                      const Spacer(),
+                      Text('${_page + 1} of $_pageCount', style: AppText.body(13, color: AppColors.muted)),
+                    ],
+                  ),
+                ),
+              ),
+              Expanded(
+                child: PageView(
+                  controller: _pages,
+                  physics: const NeverScrollableScrollPhysics(),
+                  onPageChanged: (p) => setState(() => _page = p),
+                  children: [_welcomePage(), _namePage(), _habitsPage(), _selfCarePage()],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(22, 8, 22, 16),
+                child: Column(
                   children: [
-                    if (_page > 0)
-                      CircleIconButton(
-                        icon: Icons.arrow_back_rounded,
-                        tooltip: 'Back',
-                        onPressed: () => _goTo(_page - 1),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        for (var i = 0; i < _pageCount; i++)
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 250),
+                            margin: const EdgeInsets.symmetric(horizontal: 3),
+                            width: i == _page ? 22 : 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: i == _page ? AppColors.accent : AppColors.line,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton(
+                        onPressed: _next,
+                        child: Text(_page == _pageCount - 1 ? 'Start my journey' : 'Continue'),
                       ),
-                    const Spacer(),
-                    Text('${_page + 1} of $_pageCount', style: AppText.body(13, color: AppColors.muted)),
+                    ),
                   ],
                 ),
               ),
-            ),
-            Expanded(
-              child: PageView(
-                controller: _pages,
-                physics: const NeverScrollableScrollPhysics(),
-                onPageChanged: (p) => setState(() => _page = p),
-                children: [_welcomePage(), _namePage(), _habitsPage(), _selfCarePage()],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(22, 8, 22, 16),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      for (var i = 0; i < _pageCount; i++)
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 250),
-                          margin: const EdgeInsets.symmetric(horizontal: 3),
-                          width: i == _page ? 22 : 8,
-                          height: 8,
-                          decoration: BoxDecoration(
-                            color: i == _page ? AppColors.accent : AppColors.line,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    child: FilledButton(
-                      onPressed: _next,
-                      child: Text(_page == _pageCount - 1 ? 'Start my journey' : 'Continue'),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -174,12 +181,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   alignment: Alignment.center,
                   children: [
                     Container(
-                      decoration: const BoxDecoration(color: AppColors.night, shape: BoxShape.circle),
+                      decoration: BoxDecoration(color: AppColors.night, shape: BoxShape.circle),
                     ),
                     Container(
                       width: 150,
                       height: 150,
-                      decoration: const BoxDecoration(color: Color(0xFF4C5AA3), shape: BoxShape.circle),
+                      decoration: BoxDecoration(color: AppColors.peach.withAlpha(0x40), shape: BoxShape.circle),
                     ),
                     Positioned(
                       top: 62,
@@ -187,7 +194,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       child: Container(
                         width: 56,
                         height: 56,
-                        decoration: const BoxDecoration(color: AppColors.peach, shape: BoxShape.circle),
+                        decoration: BoxDecoration(color: AppColors.peach, shape: BoxShape.circle),
                       ),
                     ),
                   ],
@@ -318,7 +325,7 @@ class _TemplateTile extends StatelessWidget {
         color: selected ? AppColors.accentSoft : AppColors.card,
         child: Row(
           children: [
-            IconBubble(icon: appIcon(template.icon), background: selected ? AppColors.card : AppColors.accentSoft),
+            EmojiTile(template.icon),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
