@@ -1,4 +1,4 @@
-# Sukoon — Habit & Self-Care App (Flutter)
+# Dayloop — Habit & Self-Care App (Flutter)
 
 Ek hi code se Android aur iPhone dono ki app. Saara data phone mein save hota hai (koi server ya login nahi chahiye).
 
@@ -21,7 +21,7 @@ Ek hi code se Android aur iPhone dono ki app. Saara data phone mein save hota ha
    ```
 3. Android aur iPhone ke folders banayein (yeh aap ke `lib/` code ko nahi chhedta):
    ```
-   flutter create . --org com.yourcompany --project-name sukoon --platforms android,ios
+   flutter create . --org com.yourcompany --project-name dayloop --platforms android,ios
    ```
    `com.yourcompany` ki jagah apni company ka naam likhein (jaise `com.usmanapps`). Yeh baad mein Play Store par app ki pehchaan banti hai.
 4. Packages download karein:
@@ -53,11 +53,32 @@ Sirf testing ke liye APK:
 flutter build apk --release
 ```
 
-## 5. App ka naam badalna
+## 5. App ka naam (Dayloop)
 
-- `lib/theme/app_theme.dart` mein `AppConfig.appName`.
-- Android: `android/app/src/main/AndroidManifest.xml` mein `android:label`.
+- Dart code mein: `lib/theme/app_theme.dart` mein `AppConfig.appName`.
+- Phone par icon ke neeche naam: `android/app/src/main/AndroidManifest.xml` mein `android:label="Dayloop"`.
 - iPhone: `ios/Runner/Info.plist` mein `CFBundleDisplayName`.
+
+Play Store release ke saare qadam (signing, AAB, icon, privacy policy): `RELEASE_GUIDE.md` dekhein.
+
+## 6. Profile photo (iPhone ke liye zaroori)
+
+iPhone par gallery aur camera ki ijazat ke liye `ios/Runner/Info.plist` mein `<dict>` ke andar yeh add karein:
+
+```xml
+<key>NSPhotoLibraryUsageDescription</key>
+<string>Dayloop uses your photo library to set your profile picture.</string>
+<key>NSCameraUsageDescription</key>
+<string>Dayloop uses the camera to take your profile picture.</string>
+```
+
+Android par kuch add karne ki zaroorat nahi.
+
+## 7. Rang aur Light/Dark mode
+
+- 10 colour schemes `lib/theme/palettes.dart` mein hain (har ek ka light aur dark version).
+- User Profile → Settings (gear icon) se scheme aur System/Light/Dark mode chun sakta hai.
+- Default: Saffron Night (`p1`), Dark mode. Badalna ho to `lib/core/app_data.dart` mein `schemeId` aur `themeMode` badal dein.
 
 ## Folder structure
 
@@ -80,8 +101,11 @@ lib/
     habits_screen.dart       Habit add / edit / delete
     self_care_setup_screen.dart, self_care_day_screen.dart
     achievements_screen.dart Badges aur Challenges tabs
-    profile_screen.dart      Heatmap, settings, journal history, reset
-assets/fonts/                Plus Jakarta Sans + Fraunces (OFL license, app ke andar)
+    profile_screen.dart      Profile, heatmap, journal history
+    profile_card.dart        Photo (gallery/camera) aur naam edit
+    settings_screen.dart     Rang, Light/Dark, pani ka goal, reset
+assets/fonts/                Bricolage Grotesque (OFL license, app ke andar)
+assets/emoji/                3D emoji (Microsoft Fluent Emoji, MIT license)
 test/core_test.dart          Rules ke tests
 ```
 
@@ -95,7 +119,7 @@ test/core_test.dart          Rules ke tests
 
 ## Agle marhale (is version mein nahi)
 
-AI Coach, notifications, login/cloud backup, namaz ke auqaat, Ramzan mode, Squad, dark mode. In ke liye server, API keys ya mazeed packages chahiye.
+AI Coach, notifications, login/cloud backup, namaz ke auqaat, Ramzan mode, Squad. In ke liye server, API keys ya mazeed packages chahiye.
 
 ## Agar koi masla aaye
 

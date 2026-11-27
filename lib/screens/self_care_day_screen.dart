@@ -16,20 +16,20 @@ class SelfCareDayScreen extends StatelessWidget {
 
   final DateTime day;
 
-  static const Map<String, Tone> _categoryTones = {
-    'meditation': Tone(Color(0xFF8A97DD), Color(0xFFECEEFB), Color(0xFF4A5BB8)),
-    'reading': Tone(Color(0xFFE59A62), Color(0xFFFBEBDD), Color(0xFF9A4A1F)),
-    'rest': Tone(Color(0xFF6FA3D6), Color(0xFFE4EEF6), Color(0xFF2D5B80)),
-    'relaxation': Tone(Color(0xFF7DBB9C), Color(0xFFE3F1EA), Color(0xFF2E6B52)),
-    'reflection': Tone(Color(0xFFC97BAE), Color(0xFFF4E6F0), Color(0xFF7A3B66)),
+  static const Map<String, String> _categoryTones = {
+    'meditation': 'indigo',
+    'reading': 'peach',
+    'rest': 'blue',
+    'relaxation': 'green',
+    'reflection': 'pink',
   };
 
-  static IconData _iconFor(String category) => switch (category) {
-    'meditation' => Icons.self_improvement,
-    'reading' => Icons.menu_book_outlined,
-    'rest' => Icons.bedtime_outlined,
-    'relaxation' => Icons.waves,
-    _ => Icons.edit_note,
+  static String _emojiFor(String category) => switch (category) {
+    'meditation' => 'meditate',
+    'reading' => 'book',
+    'rest' => 'sleep',
+    'relaxation' => 'waves',
+    _ => 'journal',
   };
 
   @override
@@ -77,8 +77,8 @@ class SelfCareDayScreen extends StatelessWidget {
                     padding: const EdgeInsets.only(bottom: 10),
                     child: _ItemTile(
                       item: item,
-                      tone: _categoryTones[item.category] ?? Tone.of('indigo'),
-                      icon: _iconFor(item.category),
+                      tone: Tone.of(_categoryTones[item.category] ?? 'indigo'),
+                      emoji: _emojiFor(item.category),
                       canAct: isToday,
                       onToggle: () => store.update(
                         (data) => data.setSelfCareStatus(
@@ -187,7 +187,7 @@ class _Header extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.night,
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(32)),
       ),
@@ -199,17 +199,17 @@ class _Header extends StatelessWidget {
             child: Container(
               width: 190,
               height: 190,
-              decoration: const BoxDecoration(color: Color(0xFF3E4A8E), shape: BoxShape.circle),
+              decoration: BoxDecoration(color: AppColors.peach.withAlpha(0x22), shape: BoxShape.circle),
               alignment: Alignment.center,
               child: Container(
                 width: 120,
                 height: 120,
-                decoration: const BoxDecoration(color: Color(0xFF4C5AA3), shape: BoxShape.circle),
+                decoration: BoxDecoration(color: AppColors.peach.withAlpha(0x40), shape: BoxShape.circle),
                 alignment: const Alignment(0.3, -0.2),
                 child: Container(
                   width: 52,
                   height: 52,
-                  decoration: const BoxDecoration(color: AppColors.peach, shape: BoxShape.circle),
+                  decoration: BoxDecoration(color: AppColors.peach, shape: BoxShape.circle),
                 ),
               ),
             ),
@@ -225,7 +225,7 @@ class _Header extends StatelessWidget {
                     icon: Icons.arrow_back_rounded,
                     tooltip: 'Back',
                     background: AppColors.night,
-                    foreground: AppColors.white,
+                    foreground: AppColors.nightInk,
                     borderColor: AppColors.whiteFaint,
                     onPressed: () => Navigator.of(context).pop(),
                   ),
@@ -239,7 +239,7 @@ class _Header extends StatelessWidget {
                     width: 240,
                     child: Text(
                       isToday ? 'Slow down. Today is for you.' : 'Your next day of rest.',
-                      style: AppText.display(28, color: AppColors.white),
+                      style: AppText.display(28, color: AppColors.nightInk),
                     ),
                   ),
                   const SizedBox(height: 14),
@@ -273,7 +273,7 @@ class _HeaderChip extends StatelessWidget {
       decoration: BoxDecoration(color: AppColors.whiteFaint, borderRadius: BorderRadius.circular(12)),
       child: Text(
         text,
-        style: AppText.body(12, weight: FontWeight.w700, color: AppColors.white),
+        style: AppText.body(12, weight: FontWeight.w700, color: AppColors.nightInk),
       ),
     );
   }
@@ -283,7 +283,7 @@ class _ItemTile extends StatelessWidget {
   const _ItemTile({
     required this.item,
     required this.tone,
-    required this.icon,
+    required this.emoji,
     required this.canAct,
     required this.onToggle,
     required this.onSwap,
@@ -291,7 +291,7 @@ class _ItemTile extends StatelessWidget {
 
   final SelfCareItem item;
   final Tone tone;
-  final IconData icon;
+  final String emoji;
   final bool canAct;
   final VoidCallback onToggle;
   final VoidCallback? onSwap;
@@ -306,7 +306,7 @@ class _ItemTile extends StatelessWidget {
         onTap: canAct ? onToggle : null,
         child: Row(
           children: [
-            IconBubble(icon: icon, background: tone.bg, foreground: tone.ink),
+            EmojiTile(emoji),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -331,7 +331,7 @@ class _ItemTile extends StatelessWidget {
             if (onSwap != null && item.category != 'reflection' && !done)
               IconButton(
                 tooltip: 'Swap ${item.title} for another suggestion',
-                icon: const Icon(Icons.swap_horiz, color: AppColors.muted),
+                icon: Icon(Icons.swap_horiz, color: AppColors.muted),
                 onPressed: onSwap,
               ),
             if (canAct)

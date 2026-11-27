@@ -28,7 +28,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
     return SafeArea(
       bottom: false,
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 112),
         children: [
           TabHeader(
             title: 'Achievements',
@@ -79,12 +79,12 @@ class _SummaryCard extends StatelessWidget {
             style: AppText.body(28, weight: FontWeight.w800, color: AppColors.peach, height: 1.1),
           ),
           const SizedBox(height: 2),
-          Text(label, style: AppText.body(12, color: AppColors.sandDeep)),
+          Text(label, style: AppText.body(12, color: AppColors.nightSoft)),
         ],
       ),
     );
     return AppCard(
-      color: AppColors.ink,
+      color: AppColors.night,
       padding: const EdgeInsets.all(18),
       child: Row(
         children: [
@@ -181,7 +181,7 @@ class _BadgesTab extends StatelessWidget {
                     ],
                   ),
                 ),
-                const Icon(Icons.chevron_right, color: AppColors.muted),
+                Icon(Icons.chevron_right, color: AppColors.muted),
               ],
             ),
           ),
@@ -236,7 +236,10 @@ class _BadgeMedal extends StatelessWidget {
         border: Border.all(color: tone.ring, width: 3),
       ),
       alignment: Alignment.center,
-      child: Icon(earned ? appIcon(def.icon) : Icons.lock_outline, color: tone.ink, size: size * 0.45),
+      child: Opacity(
+        opacity: earned ? 1 : 0.55,
+        child: Emoji3D(earned ? def.icon : 'lock', size: size * 0.56),
+      ),
     );
   }
 }
@@ -401,13 +404,7 @@ class _ChallengesTab extends StatelessWidget {
                 padding: const EdgeInsets.all(12),
                 child: Row(
                   children: [
-                    const IconBubble(
-                      icon: Icons.check_rounded,
-                      background: AppColors.successSoft,
-                      foreground: AppColors.success,
-                      size: 40,
-                      radius: 20,
-                    ),
+                    const EmojiTile('trophy', size: 44),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
@@ -440,7 +437,7 @@ class _ChallengesTab extends StatelessWidget {
               color: AppColors.sand,
               child: Row(
                 children: [
-                  IconBubble(icon: appIcon(c.icon), size: 40),
+                  EmojiTile(c.icon, size: 44),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -497,7 +494,7 @@ class _ActiveChallengeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final results = status.dayResults;
     return AppCard(
-      color: AppColors.accent,
+      color: AppColors.night,
       padding: const EdgeInsets.all(18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -512,7 +509,7 @@ class _ActiveChallengeCard extends StatelessWidget {
                 decoration: BoxDecoration(color: AppColors.whiteFaint, borderRadius: BorderRadius.circular(10)),
                 child: Text(
                   '${status.daysLeft} ${status.daysLeft == 1 ? 'day' : 'days'} left',
-                  style: AppText.body(12, weight: FontWeight.w700, color: AppColors.white),
+                  style: AppText.body(12, weight: FontWeight.w700, color: AppColors.nightInk),
                 ),
               ),
             ],
@@ -520,7 +517,7 @@ class _ActiveChallengeCard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             def.title,
-            style: AppText.body(21, weight: FontWeight.w800, color: AppColors.white),
+            style: AppText.body(21, weight: FontWeight.w800, color: AppColors.nightInk),
           ),
           const SizedBox(height: 12),
           Semantics(
@@ -551,7 +548,7 @@ class _ActiveChallengeCard extends StatelessWidget {
               ),
               TextButton(
                 onPressed: onLeave,
-                style: TextButton.styleFrom(foregroundColor: AppColors.white, minimumSize: const Size(0, 40)),
+                style: TextButton.styleFrom(foregroundColor: AppColors.nightInk, minimumSize: const Size(0, 40)),
                 child: const Text('Leave'),
               ),
             ],

@@ -231,7 +231,7 @@ class _DayButton extends StatelessWidget {
             child: Center(
               child: Text(
                 letter,
-                style: AppText.body(14, weight: FontWeight.w700, color: selected ? AppColors.white : AppColors.ink),
+                style: AppText.body(14, weight: FontWeight.w700, color: selected ? AppColors.onAccent : AppColors.ink),
               ),
             ),
           ),

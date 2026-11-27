@@ -16,7 +16,7 @@ class HabitsScreen extends StatelessWidget {
     return SafeArea(
       bottom: false,
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 112),
         children: [
           TabHeader(
             title: 'Your habits',
@@ -45,7 +45,7 @@ class HabitsScreen extends StatelessWidget {
                   onTap: () => showHabitEditor(context, habit: h),
                   child: Row(
                     children: [
-                      IconBubble(icon: appIcon(h.icon)),
+                      EmojiTile(h.icon),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
@@ -61,12 +61,12 @@ class HabitsScreen extends StatelessWidget {
                       ),
                       IconButton(
                         tooltip: 'Edit ${h.title}',
-                        icon: const Icon(Icons.edit_outlined, color: AppColors.muted),
+                        icon: Icon(Icons.edit_outlined, color: AppColors.muted),
                         onPressed: () => showHabitEditor(context, habit: h),
                       ),
                       IconButton(
                         tooltip: 'Delete ${h.title}',
-                        icon: const Icon(Icons.delete_outline, color: AppColors.muted),
+                        icon: Icon(Icons.delete_outline, color: AppColors.muted),
                         onPressed: () => _delete(context, h),
                       ),
                     ],
@@ -231,19 +231,18 @@ class _HabitEditorSheetState extends State<HabitEditorSheet> {
                     label: key,
                     button: true,
                     child: Material(
-                      color: _icon == key ? AppColors.accent : AppColors.card,
+                      color: _icon == key ? AppColors.accentSoft : AppColors.card,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
-                        side: BorderSide(color: _icon == key ? AppColors.accent : AppColors.line),
+                        side: BorderSide(
+                          color: _icon == key ? AppColors.accent : AppColors.line,
+                          width: _icon == key ? 2 : 1,
+                        ),
                       ),
                       clipBehavior: Clip.antiAlias,
                       child: InkWell(
                         onTap: () => setState(() => _icon = key),
-                        child: SizedBox(
-                          width: 48,
-                          height: 48,
-                          child: Icon(appIcon(key), color: _icon == key ? AppColors.white : AppColors.ink),
-                        ),
+                        child: SizedBox(width: 48, height: 48, child: Center(child: Emoji3D(key, size: 30))),
                       ),
                     ),
                   ),
