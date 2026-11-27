@@ -148,11 +148,11 @@ class _BottomBar extends StatelessWidget {
   final int index;
   final ValueChanged<int> onSelect;
 
-  static const List<(IconData, IconData, String)> _items = [
-    (Icons.calendar_today_outlined, Icons.calendar_today_rounded, 'Today'),
-    (Icons.checklist_rounded, Icons.checklist_rounded, 'Habits'),
-    (Icons.emoji_events_outlined, Icons.emoji_events_rounded, 'Badges'),
-    (Icons.person_outline_rounded, Icons.person_rounded, 'Profile'),
+  static const List<(String, String)> _items = [
+    ('📅', 'Today'),
+    ('✅', 'Habits'),
+    ('🏆', 'Badges'),
+    ('👤', 'Profile'),
   ];
 
   @override
@@ -176,10 +176,10 @@ class _BottomBar extends StatelessWidget {
               Semantics(
                 button: true,
                 selected: index == i,
-                label: _items[i].$3,
+                label: _items[i].$2,
                 excludeSemantics: true,
                 child: Tooltip(
-                  message: _items[i].$3,
+                  message: _items[i].$2,
                   child: InkWell(
                     borderRadius: BorderRadius.circular(18),
                     onTap: () => onSelect(i),
@@ -195,15 +195,14 @@ class _BottomBar extends StatelessWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
-                            index == i ? _items[i].$2 : _items[i].$1,
-                            size: 22,
-                            color: index == i ? AppColors.onPeach : AppColors.nightSoft,
+                          Text(
+                            _items[i].$1,
+                            style: const TextStyle(fontSize: 22),
                           ),
                           if (index == i) ...[
                             const SizedBox(width: 7),
                             Text(
-                              _items[i].$3,
+                              _items[i].$2,
                               style: AppText.body(14, weight: FontWeight.w800, color: AppColors.onPeach, height: 1),
                             ),
                           ],

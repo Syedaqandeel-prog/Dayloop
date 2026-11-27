@@ -19,11 +19,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   final PageController _pages = PageController();
   final TextEditingController _name = TextEditingController();
-  final Set<int> _templates = {0, 1, 2, 5};
+  final Set<int> _templates = <int>{};
   int _page = 0;
   bool _selfCareEnabled = true;
-  int _weekday = DateTime.sunday;
-  final Set<String> _categories = {'reading', 'meditation', 'rest', 'relaxation'};
+  int? _weekday;
+  final Set<String> _categories = <String>{};
 
   @override
   void dispose() {
@@ -72,7 +72,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ),
         );
       }
-      d.selfCare = SelfCareSettings(enabled: _selfCareEnabled, weekday: _weekday, categories: {..._categories});
+      d.selfCare = SelfCareSettings(enabled: _selfCareEnabled, weekday: _weekday ?? DateTime.sunday, categories: {..._categories});
       d.onboarded = true;
     });
   }

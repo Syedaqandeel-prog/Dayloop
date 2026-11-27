@@ -317,6 +317,7 @@ class _MoodCard extends StatelessWidget {
   final DateTime today;
 
   static const List<String> _labels = ['Drained', 'Low', 'Okay', 'Good', 'Great'];
+  static const List<String> _emojis = ['😩', '😔', '😐', '🙂', '😁'];
 
   @override
   Widget build(BuildContext context) {
@@ -369,7 +370,7 @@ class _MoodCard extends StatelessWidget {
               for (var i = 0; i < _labels.length; i++)
                 Expanded(
                   child: _MoodButton(
-                    emoji: 'mood${i + 1}',
+                    emoji: _emojis[i],
                     label: _labels[i],
                     selected: mood == i + 1,
                     anySelected: mood != null,
@@ -391,47 +392,58 @@ class _MoodCard extends StatelessWidget {
     };
     return showModalBottomSheet<void>(
       context: context,
+      isScrollControlled: true,
       backgroundColor: AppColors.card,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
       builder: (sheet) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 18, 16, 12),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: Text('Routine size', style: AppText.display(22)),
-              ),
-              const SizedBox(height: 12),
-              for (final m in RoutineMode.values)
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 18, 16, 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: AppCard(
-                    color: m == current ? AppColors.accentSoft : AppColors.sand,
-                    borderColor: m == current ? AppColors.accent : AppColors.line,
-                    onTap: () {
-                      store.update((d) => d.setMode(today, m));
-                      Navigator.of(sheet).pop();
-                    },
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(m.label, style: AppText.body(16, weight: FontWeight.w800)),
-                              Text(info[m]!, style: AppText.body(13, color: AppColors.muted)),
-                            ],
-                          ),
-                        ),
-                        if (m == current) Icon(Icons.check_circle, color: AppColors.accent),
-                      ],
-                    ),
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Text('Routine size', style: AppText.display(22)),
+                ),
+                const SizedBox(height: 4),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Text(
+                    'Choose your routine for today',
+                    style: AppText.body(13, color: AppColors.muted),
                   ),
                 ),
-            ],
+                const SizedBox(height: 12),
+                for (final m in RoutineMode.values)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: AppCard(
+                      color: AppColors.sand,
+                      borderColor: AppColors.line,
+                      onTap: () {
+                        store.update((d) => d.setMode(today, m));
+                        Navigator.of(sheet).pop();
+                      },
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(m.label, style: AppText.body(16, weight: FontWeight.w800)),
+                                const SizedBox(height: 2),
+                                Text(info[m]!, style: AppText.body(13, color: AppColors.muted)),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ),
@@ -484,7 +496,10 @@ class _MoodButton extends StatelessWidget {
                   child: AnimatedScale(
                     duration: const Duration(milliseconds: 200),
                     scale: selected ? 1.08 : 1,
-                    child: Emoji3D(emoji, size: 36),
+                    child: Text(
+                      emoji,
+                      style: const TextStyle(fontSize: 32),
+                    ),
                   ),
                 ),
               ),
