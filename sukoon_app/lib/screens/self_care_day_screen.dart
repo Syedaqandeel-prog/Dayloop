@@ -50,7 +50,7 @@ class SelfCareDayScreen extends StatelessWidget {
         break;
       }
     }
-
+                                                                                     
     return Scaffold(
       body: Column(
         children: [

@@ -18,7 +18,6 @@ class _SelfCareSetupScreenState extends State<SelfCareSetupScreen> {
   late SelfCareSettings _settings;
   late int _suggested;
   bool _loaded = false;
-
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();

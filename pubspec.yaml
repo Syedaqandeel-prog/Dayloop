@@ -35,3 +35,5 @@ flutter:
       fonts:
         - asset: assets/fonts/Fraunces-600.ttf
           weight: 600
+dependencies:
+  shared_preferences: ^2.5.6

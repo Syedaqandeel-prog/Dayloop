@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../data/app_store.dart';
 import '../theme/app_theme.dart';
 import 'achievements_screen.dart';
+import 'habit_calendar_screen.dart';
 import 'habits_screen.dart';
 import 'profile_screen.dart';
 import 'today_screen.dart';
@@ -86,6 +87,7 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
         children: [
           TodayScreen(onOpenHabits: () => _openTab(1)),
           const HabitsScreen(),
+          const HabitCalendarScreen(),
           const AchievementsScreen(),
           const ProfileScreen(),
         ],
@@ -102,6 +104,11 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
             icon: Icon(Icons.checklist_rounded),
             selectedIcon: Icon(Icons.checklist_rounded),
             label: 'Habits',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.calendar_month_outlined),
+            selectedIcon: Icon(Icons.calendar_month),
+            label: 'Calendar',
           ),
           NavigationDestination(
             icon: Icon(Icons.emoji_events_outlined),
