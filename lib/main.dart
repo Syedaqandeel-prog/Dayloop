@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import 'data/app_store.dart';
 import 'screens/home_shell.dart';
@@ -10,23 +11,38 @@ import 'theme/app_theme.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  final store = await AppStore.load();
 
-  // Notification ON - English
-  await NotificationService().init();
-  // Agar aaj koi habit nahi hai to yaad dilao
-  if (store.data.habits.isEmpty) {
-    await NotificationService().noHabitReminder();
+  // SAB SE PEHLE - ONBOARDING SE BHI PEHLE NOTIFICATION MANGO
+  // Yehi wala popup ab sab se pehle aayega
+  try {
+    await Permission.notification.request().timeout(const Duration(seconds: 3));
+  } catch (_) {}
+
+  // 1. Store load karo
+  late AppStore store;
+  try {
+    store = await AppStore.load().timeout(const Duration(seconds: 5));
+  } catch (e) {
+    store = await AppStore.load();
   }
 
+  // 2. Ab App kholo
   runApp(DayloopApp(store: store));
+
+  // 3. App khulne ke baad service init karo
+  Future.delayed(const Duration(seconds: 1), () async {
+    try {
+      await NotificationService().init();
+      if (store.data.habits.isEmpty) {
+        await NotificationService().noHabitReminder();
+      }
+    } catch (_) {}
+  });
 }
 
 class DayloopApp extends StatefulWidget {
   const DayloopApp({super.key, required this.store});
-
   final AppStore store;
-
   @override
   State<DayloopApp> createState() => _DayloopAppState();
 }
@@ -44,7 +60,6 @@ class _DayloopAppState extends State<DayloopApp> with WidgetsBindingObserver {
     super.dispose();
   }
 
-  /// The phone switched between light and dark: follow it in "System" mode.
   @override
   void didChangePlatformBrightness() {
     if (widget.store.data.themeMode == 'system') {
@@ -69,7 +84,6 @@ class _DayloopAppState extends State<DayloopApp> with WidgetsBindingObserver {
       listenable: widget.store,
       builder: (context, _) {
         final palette = schemeById(widget.store.data.schemeId).of(_isDark());
-        // Set before any screen builds in this frame.
         AppColors.current = palette;
         return StoreScope(
           store: widget.store,
@@ -89,10 +103,8 @@ class _DayloopAppState extends State<DayloopApp> with WidgetsBindingObserver {
   }
 }
 
-/// Shows onboarding until it is finished, then the main app.
 class RootGate extends StatelessWidget {
   const RootGate({super.key});
-
   @override
   Widget build(BuildContext context) {
     final store = StoreScope.of(context);

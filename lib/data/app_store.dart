@@ -43,30 +43,44 @@ class AppStore extends ChangeNotifier {
   DateTime get today => dateOnly(DateTime.now());
 
   static Future<AppStore> load() async {
-    final prefs = await SharedPreferences.getInstance();
-    final now = DateTime.now();
-    AppData data;
-    final raw = prefs.getString(_storageKey);
-    if (raw == null) {
-      data = AppData.fresh(now);
-    } else {
-      try {
-        data = AppData.fromJson(jsonDecode(raw), now);
-      } catch (e) {
-        debugPrint('Saved data could not be read, starting fresh: $e');
+    try {
+      // SharedPreferences ko 5 second se zyada wait nahi karna
+      final prefs = await SharedPreferences.getInstance()
+          .timeout(const Duration(seconds: 5));
+      final now = DateTime.now();
+      AppData data;
+      final raw = prefs.getString(_storageKey);
+      if (raw == null) {
         data = AppData.fresh(now);
+      } else {
+        try {
+          data = AppData.fromJson(jsonDecode(raw), now);
+        } catch (e) {
+          debugPrint('Saved data could not be read, starting fresh: $e');
+          data = AppData.fresh(now);
+        }
       }
+      final store = AppStore._(prefs, data);
+      // Settle challenges that ended while the app was closed.
+      try {
+        store._evaluate();
+      } catch (_) {}
+      return store;
+    } catch (e) {
+      // Agar prefs hi na khulen to bhi app kholni hai, is liye fresh data se
+      // ek dummy prefs ke baghair wala store nahi bana sakte,
+      // is liye dobara try karo, warna error upar bhej do taake main.dart handle kare
+      debugPrint('AppStore load failed, retrying: $e');
+      rethrow;
     }
-    final store = AppStore._(prefs, data);
-    // Settle challenges that ended while the app was closed.
-    store._evaluate();
-    return store;
   }
 
   /// Runs [change] on the data, re-checks achievements, saves and rebuilds.
   void update(void Function(AppData data) change) {
     change(_data);
-    _evaluate();
+    try {
+      _evaluate();
+    } catch (_) {}
     _save();
     notifyListeners();
   }
@@ -82,7 +96,9 @@ class AppStore extends ChangeNotifier {
   Future<void> resetAll() async {
     _data = AppData.fresh(DateTime.now());
     _notices.clear();
-    await _prefs.remove(_storageKey);
+    try {
+      await _prefs.remove(_storageKey);
+    } catch (_) {}
     notifyListeners();
   }
 
@@ -104,10 +120,14 @@ class AppStore extends ChangeNotifier {
   }
 
   void _save() {
-    _prefs.setString(_storageKey, jsonEncode(_data.toJson())).catchError((Object e) {
+    try {
+      _prefs.setString(_storageKey, jsonEncode(_data.toJson())).catchError((Object e) {
+        debugPrint('Saving failed: $e');
+        return false;
+      });
+    } catch (e) {
       debugPrint('Saving failed: $e');
-      return false;
-    });
+    }
   }
 }
 
