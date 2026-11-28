@@ -306,7 +306,16 @@ class _ItemTile extends StatelessWidget {
         onTap: canAct ? onToggle : null,
         child: Row(
           children: [
-            EmojiTile(emoji),
+            Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                color: tone.bg,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              alignment: Alignment.center,
+              child: Emoji3D(emoji, size: 34),
+            ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(

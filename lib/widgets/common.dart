@@ -25,6 +25,26 @@ const Map<String, IconData> kAppIcons = {
   'waves': Icons.waves,
   'spa': Icons.spa_outlined,
   'coffee': Icons.coffee_outlined,
+  'tv': Icons.tv_outlined,
+  'movie': Icons.movie_outlined,
+  'swim': Icons.pool_outlined,
+  'run': Icons.directions_run,
+  'bike': Icons.directions_bike_outlined,
+  'music': Icons.music_note_outlined,
+  'code': Icons.code_rounded,
+  'work': Icons.work_outline,
+  'clean': Icons.cleaning_services_outlined,
+  'money': Icons.savings_outlined,
+  'call': Icons.call_outlined,
+  'art': Icons.palette_outlined,
+  'plant': Icons.local_florist_outlined,
+  'pet': Icons.pets_outlined,
+  'car': Icons.directions_car_outlined,
+  'shop': Icons.shopping_bag_outlined,
+  'health': Icons.health_and_safety_outlined,
+  'school': Icons.school_outlined,
+  'prayer': Icons.mosque_outlined,
+  'dance': Icons.music_note_rounded,
 };
 
 /// Icons a user can pick for a habit.
@@ -43,7 +63,71 @@ const List<String> kHabitIconChoices = [
   'heart',
   'spa',
   'coffee',
+  'waves',
+  'tv',
+  'movie',
+  'swim',
+  'run',
+  'bike',
+  'music',
+  'code',
+  'work',
+  'clean',
+  'money',
+  'call',
+  'art',
+  'plant',
+  'pet',
+  'car',
+  'shop',
+  'health',
+  'school',
+  'prayer',
 ];
+
+/// Har key ka REAL emoji - is se sab icons ek jese real lagenge
+const Map<String, String> kRealEmoji = {
+  'water': '💧',
+  'stretch': '🧘',
+  'meditate': '🧘‍♀️',
+  'focus': '🎯',
+  'food': '🍱',
+  'walk': '🚶',
+  'book': '📚',
+  'sleep': '😴',
+  'journal': '📝',
+  'workout': '💪',
+  'sun': '☀️',
+  'heart': '❤️',
+  'star': '⭐',
+  'flame': '🔥',
+  'flag': '🚩',
+  'trophy': '🏆',
+  'calendar': '📅',
+  'waves': '🌊',
+  'spa': '🧖‍♀️',
+  'coffee': '☕',
+  'tv': '📺',
+  'movie': '🎬',
+  'swim': '🏊',
+  'run': '🏃',
+  'bike': '🚴',
+  'music': '🎵',
+  'code': '💻',
+  'work': '💼',
+  'clean': '🧹',
+  'money': '💰',
+  'call': '📞',
+  'art': '🎨',
+  'plant': '🌱',
+  'pet': '🐾',
+  'car': '🚗',
+  'shop': '🛍️',
+  'health': '🩺',
+  'school': '🎓',
+  'prayer': '🕌',
+  'dance': '💃',
+};
 
 IconData appIcon(String key) => kAppIcons[key] ?? Icons.star_border;
 
@@ -325,6 +409,26 @@ const Map<String, Color> _emojiHue = {
   'calendar': Color(0xFF4A57C4),
   'mail': Color(0xFF2F80D1),
   'lock': Color(0xFFE0A02A),
+  'tv': Color(0xFF4A57C4),
+  'movie': Color(0xFF4A57C4),
+  'swim': Color(0xFF2F80D1),
+  'run': Color(0xFFD9453A),
+  'bike': Color(0xFF23935F),
+  'music': Color(0xFF7A5AD6),
+  'code': Color(0xFF4A57C4),
+  'work': Color(0xFFD4762C),
+  'clean': Color(0xFF23935F),
+  'money': Color(0xFFE0A02A),
+  'call': Color(0xFFD9466B),
+  'art': Color(0xFFD9453A),
+  'plant': Color(0xFF23935F),
+  'pet': Color(0xFFD4762C),
+  'car': Color(0xFF4A57C4),
+  'shop': Color(0xFFD9466B),
+  'health': Color(0xFFD9453A),
+  'school': Color(0xFFD4762C),
+  'prayer': Color(0xFF7A5AD6),
+  'dance': Color(0xFF7A5AD6),
 };
 
 /// A realistic 3D emoji image. Falls back to a plain icon if the image is missing.
@@ -336,6 +440,14 @@ class Emoji3D extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final emoji = kRealEmoji[name];
+    if (emoji != null) {
+      return Text(
+        emoji,
+        style: TextStyle(fontSize: size, height: 1),
+        textAlign: TextAlign.center,
+      );
+    }
     if (!kEmojiNames.contains(name)) {
       return Icon(appIcon(name), size: size, color: AppColors.accent);
     }

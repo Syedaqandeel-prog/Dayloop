@@ -41,7 +41,7 @@ class ProfileScreen extends StatelessWidget {
           const SizedBox(height: 16),
           const ProfileCard(),
           const SizedBox(height: 18),
-          _Heatmap(data: d, today: today),
+          _WeeklyConsistency(data: d, today: today),
           const SizedBox(height: 18),
           const SectionLabel('Self-Care Day'),
           AppCard(
@@ -124,36 +124,30 @@ class ProfileScreen extends StatelessWidget {
   }
 }
 
-/// Last 12 weeks, one column per week, Monday at the top.
-class _Heatmap extends StatelessWidget {
-  const _Heatmap({required this.data, required this.today});
+/// Only THIS week - 7 boxes, Mon to Sun.
+/// Done day = dark / accent, missed day = light empty, future day = very light.
+/// When Monday comes, this automatically shows the new week.
+class _WeeklyConsistency extends StatelessWidget {
+  const _WeeklyConsistency({required this.data, required this.today});
 
   final AppData data;
   final DateTime today;
 
-  static List<Color> get _levels => [
-    AppColors.sandDeep,
-    AppColors.accent.withAlpha(0x55),
-    AppColors.accent.withAlpha(0xAA),
-    AppColors.accent,
-  ];
-
   @override
   Widget build(BuildContext context) {
-    const weeks = 12;
     final thisMonday = addDays(today, -(today.weekday - 1));
-    final start = addDays(thisMonday, -7 * (weeks - 1));
-    final first = data.firstUse;
+    final thisSunday = addDays(thisMonday, 6);
 
-    var counted = 0;
-    var good = 0;
-    for (var i = 0; i < weeks * 7; i++) {
-      final day = addDays(start, i);
-      if (day.isAfter(today) || day.isBefore(first)) continue;
-      counted++;
-      if (data.daySuccess(day)) good++;
+    var done = 0;
+    var elapsed = 0;
+    for (var i = 0; i < 7; i++) {
+      final day = addDays(thisMonday, i);
+      if (day.isAfter(today)) continue;
+      if (day.isBefore(data.firstUse)) continue;
+      elapsed++;
+      if (data.daySuccess(day)) done++;
     }
-    final pct = counted == 0 ? 0 : (good * 100 / counted).round();
+    final pct = elapsed == 0 ? 0 : (done * 100 / elapsed).round();
 
     return AppCard(
       child: Column(
@@ -162,69 +156,110 @@ class _Heatmap extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: Text('Consistency · 12 weeks', style: AppText.body(14, weight: FontWeight.w700)),
+                child: Text('This week', style: AppText.body(14, weight: FontWeight.w700)),
               ),
               Text(
-                '$pct%',
-                style: AppText.body(20, weight: FontWeight.w800, color: AppColors.accent),
+                '$done / $elapsed days',
+                style: AppText.body(13, weight: FontWeight.w700, color: AppColors.accent),
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          Semantics(
-            label: 'Consistency heatmap: $good good days out of $counted',
-            excludeSemantics: true,
-            child: Row(
-              children: [
-                for (var w = 0; w < weeks; w++)
-                  Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.only(right: w == weeks - 1 ? 0 : 4),
-                      child: Column(
-                        children: [
-                          for (var r = 0; r < 7; r++)
-                            Padding(
-                              padding: EdgeInsets.only(bottom: r == 6 ? 0 : 4),
-                              child: AspectRatio(
-                                aspectRatio: 1,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: _colorFor(addDays(start, w * 7 + r), first),
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
+          const SizedBox(height: 4),
+          Text(
+            '${prettyDate(thisMonday)} - ${prettyDate(thisSunday)}',
+            style: AppText.body(12, color: AppColors.muted),
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              for (var i = 0; i < 7; i++)
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(right: i == 6 ? 0 : 6),
+                    child: _DayBox(
+                      day: addDays(thisMonday, i),
+                      today: today,
+                      isDone: _isDone(addDays(thisMonday, i)),
+                      isToday: isSameDay(addDays(thisMonday, i), today),
                     ),
                   ),
-              ],
-            ),
+                ),
+            ],
           ),
           const SizedBox(height: 10),
           Row(
-            mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Text('Less', style: AppText.body(11, color: AppColors.muted)),
-              for (final c in _levels)
-                Container(
-                  width: 12,
-                  height: 12,
-                  margin: const EdgeInsets.only(left: 4),
-                  decoration: BoxDecoration(color: c, borderRadius: BorderRadius.circular(3)),
-                ),
-              const SizedBox(width: 4),
-              Text('More', style: AppText.body(11, color: AppColors.muted)),
+              Container(width: 10, height: 10, decoration: BoxDecoration(color: AppColors.accent, borderRadius: BorderRadius.circular(3))),
+              const SizedBox(width: 6),
+              Text('Done', style: AppText.body(11, color: AppColors.muted)),
+              const SizedBox(width: 14),
+              Container(width: 10, height: 10, decoration: BoxDecoration(color: AppColors.sandDeep, borderRadius: BorderRadius.circular(3))),
+              const SizedBox(width: 6),
+              Text('Missed / Not yet', style: AppText.body(11, color: AppColors.muted)),
             ],
           ),
+          if (pct > 0) ...[
+            const SizedBox(height: 10),
+            Text('$pct% this week', style: AppText.body(12, color: AppColors.muted)),
+          ],
         ],
       ),
     );
   }
 
-  Color _colorFor(DateTime day, DateTime first) {
-    if (day.isAfter(today) || day.isBefore(first)) return AppColors.sandDeep.withAlpha(0x66);
-    return _levels[data.dayLevel(day)];
+  bool _isDone(DateTime day) {
+    if (day.isAfter(today)) return false;
+    if (day.isBefore(data.firstUse)) return false;
+    return data.daySuccess(day);
+  }
+}
+
+class _DayBox extends StatelessWidget {
+  const _DayBox({required this.day, required this.today, required this.isDone, required this.isToday});
+
+  final DateTime day;
+  final DateTime today;
+  final bool isDone;
+  final bool isToday;
+
+  @override
+  Widget build(BuildContext context) {
+    final isFuture = day.isAfter(today);
+    final color = isDone
+        ? AppColors.accent
+        : isFuture
+            ? AppColors.sandDeep.withAlpha(0x66)
+            : AppColors.sandDeep;
+
+    return Column(
+      children: [
+        Container(
+          height: 52,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(12),
+            border: isToday && !isDone
+                ? Border.all(color: AppColors.accent, width: 2)
+                : null,
+          ),
+          child: Center(
+            child: Icon(
+              isDone ? Icons.check_rounded : Icons.circle_outlined,
+              size: 22,
+              color: isDone ? Colors.white : AppColors.muted,
+            ),
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          kWeekdayShort[day.weekday - 1],
+          style: AppText.body(11, weight: FontWeight.w700, color: isToday ? AppColors.accent : AppColors.muted),
+        ),
+        Text(
+          '${day.day}',
+          style: AppText.body(11, color: AppColors.muted),
+        ),
+      ],
+    );
   }
 }

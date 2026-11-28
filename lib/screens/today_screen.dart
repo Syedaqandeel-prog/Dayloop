@@ -79,8 +79,20 @@ class TodayScreen extends StatelessWidget {
                     ),
                   ),
               const SizedBox(height: 10),
-              _WaterCard(data: d, today: today),
-              const SizedBox(height: 12),
+              if (planned.isNotEmpty) ...[
+                Text('Today’s tracker', style: AppText.body(15, weight: FontWeight.w800)),
+                const SizedBox(height: 8),
+                for (final h in planned)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: _RitualCounterCard(
+                      habit: h,
+                      done: d.isDone(today, h.id),
+                      day: today,
+                    ),
+                  ),
+                const SizedBox(height: 4),
+              ],
               _JournalCard(key: ValueKey(dayKey(today)), day: today, initial: d.journalOn(today)),
             ],
           ),
@@ -601,51 +613,58 @@ class _HabitTile extends StatelessWidget {
   }
 }
 
-class _WaterCard extends StatelessWidget {
-  const _WaterCard({required this.data, required this.today});
+class _RitualCounterCard extends StatelessWidget {
+  const _RitualCounterCard({required this.habit, required this.done, required this.day});
 
-  final AppData data;
-  final DateTime today;
+  final Habit habit;
+  final bool done;
+  final DateTime day;
 
   @override
   Widget build(BuildContext context) {
     final store = StoreScope.read(context);
-    final glasses = data.waterOn(today);
-    final goal = data.waterGoal;
     return AppCard(
       color: AppColors.waterBg,
       child: Row(
         children: [
-          Icon(Icons.water_drop_outlined, color: AppColors.waterBar, size: 28),
+          EmojiTile(habit.icon),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Water', style: AppText.body(13, color: AppColors.waterSub)),
+                Text(habit.title, style: AppText.body(13, color: AppColors.waterSub)),
                 Text(
-                  '$glasses of $goal glasses',
+                  done ? '1 of 1 done' : '0 of 1 done',
                   style: AppText.body(17, weight: FontWeight.w800, color: AppColors.waterInk),
                 ),
                 const SizedBox(height: 6),
-                SoftProgressBar(value: glasses / goal, color: AppColors.waterBar, track: AppColors.waterTrack),
+                SoftProgressBar(value: done ? 1 : 0, color: AppColors.waterBar, track: AppColors.waterTrack),
               ],
             ),
           ),
           const SizedBox(width: 10),
           CircleIconButton(
             icon: Icons.remove_rounded,
-            tooltip: 'Remove a glass',
-            onPressed: glasses == 0 ? null : () => store.update((d) => d.addWater(today, -1)),
+            tooltip: 'Undo ${habit.title}',
+            onPressed: !done
+                ? null
+                : () => store.update((d) {
+                      if (d.isDone(day, habit.id)) d.toggleHabit(day, habit.id);
+                    }),
           ),
           const SizedBox(width: 8),
           CircleIconButton(
             icon: Icons.add_rounded,
-            tooltip: 'Add a glass',
+            tooltip: 'Add ${habit.title}',
             background: AppColors.waterBar,
             foreground: AppColors.isDark ? AppColors.waterBg : AppColors.white,
             borderColor: null,
-            onPressed: () => store.update((d) => d.addWater(today, 1)),
+            onPressed: done
+                ? null
+                : () => store.update((d) {
+                      if (!d.isDone(day, habit.id)) d.toggleHabit(day, habit.id);
+                    }),
           ),
         ],
       ),

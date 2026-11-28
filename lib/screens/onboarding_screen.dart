@@ -290,9 +290,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               runSpacing: 8,
               children: [
                 for (final c in kSelfCareCategories)
-                  ChoicePill(
+                  _SelfCareChip(
                     label: c.label,
-                    icon: appIcon(c.icon),
+                    emojiKey: c.icon,
                     selected: _categories.contains(c.id),
                     onTap: () => setState(() {
                       if (!_categories.remove(c.id)) _categories.add(c.id);
@@ -344,6 +344,54 @@ class _TemplateTile extends StatelessWidget {
               color: selected ? AppColors.accent : AppColors.line,
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SelfCareChip extends StatelessWidget {
+  const _SelfCareChip({required this.label, required this.emojiKey, required this.selected, required this.onTap});
+
+  final String label;
+  final String emojiKey;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final fg = selected ? AppColors.accent : AppColors.ink;
+    return Semantics(
+      selected: selected,
+      button: true,
+      child: Material(
+        color: selected ? AppColors.accentSoft : AppColors.card,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: selected ? AppColors.accent : AppColors.line, width: selected ? 2 : 1),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 48),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Emoji3D(emojiKey, size: 22),
+                  const SizedBox(width: 8),
+                  Text(
+                    label,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppText.body(14, weight: selected ? FontWeight.w700 : FontWeight.w500, color: fg),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );

@@ -12,6 +12,7 @@ dependencies:
   shared_preferences: ^2.2.3
   image_picker: ^1.1.2
   url_launcher: ^6.3.0
+  flutter_local_notifications: ^17.2.3
 
 dependency_overrides:
   # Android implementation 2.5.x (JNI based) fails to compile with some
@@ -37,6 +38,8 @@ flutter:
   uses-material-design: true
   assets:
     - assets/emoji/
+    - assets/branding/
+    - assets/images/
   fonts:
     - family: Bricolage
       fonts:
@@ -52,14 +55,9 @@ flutter:
           weight: 800
     - family: BricolageDisplay
       fonts:
-<<<<<<< HEAD
         - asset: assets/fonts/Fraunces-600.ttf
           weight: 600
-dependencies:
-  shared_preferences: ^2.5.6
-=======
         - asset: assets/fonts/BricolageDisplay-700.ttf
           weight: 700
         - asset: assets/fonts/BricolageDisplay-800.ttf
           weight: 800
->>>>>>> 8a8da02bb467d5135e2d2cce51ff82f4df6d521d

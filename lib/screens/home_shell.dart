@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../core/notification_service.dart';
 import '../data/app_store.dart';
 import '../theme/app_theme.dart';
 import 'achievements_screen.dart';
@@ -17,6 +18,8 @@ class HomeShell extends StatefulWidget {
 class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
   int _tab = 0;
   AppStore? _store;
+  bool _notifiedEmpty = false;
+  bool _notifiedUndone = false;
 
   @override
   void initState() {
@@ -50,9 +53,36 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
     }
   }
 
+  // Notification logic - Home Screen se attached
+  void _checkHabitNotifications() {
+    final store = _store;
+    if (store == null) return;
+
+    final habits = store.data.habits;
+
+    // Case 1: User ne aaj koi habit add hi nahi ki
+    if (habits.isEmpty) {
+      if (!_notifiedEmpty) {
+        _notifiedEmpty = true;
+        _notifiedUndone = false;
+        NotificationService().noHabitReminder();
+      }
+      return;
+    }
+
+    // Case 2: Habit add ki lekin ki nahi
+    _notifiedEmpty = false;
+    if (!_notifiedUndone) {
+      _notifiedUndone = true;
+      // Pehli wali habit ka naam bhejte hain
+      NotificationService().habitReminder(habits.first.title);
+    }
+  }
+
   void _onStoreChanged() {
     final store = _store;
     if (store == null || !mounted) return;
+    _checkHabitNotifications();
     final notices = store.takeNotices();
     if (notices.isEmpty) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {

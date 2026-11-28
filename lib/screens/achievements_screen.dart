@@ -288,52 +288,55 @@ void _showBadge(BuildContext context, BadgeDef def, AppData data, DateTime today
   final progress = def.progress(data, today).clamp(0, def.target);
   showModalBottomSheet<void>(
     context: context,
+    isScrollControlled: true,
     backgroundColor: AppColors.sand,
     shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
     builder: (ctx) => SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _BadgeMedal(def: def, earned: earnedKey != null, size: 84),
-            const SizedBox(height: 14),
-            Text(def.title, style: AppText.display(26), textAlign: TextAlign.center),
-            const SizedBox(height: 6),
-            Text(
-              def.description,
-              style: AppText.body(14, color: AppColors.muted),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            if (earnedKey != null)
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 24, 24, 28),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _BadgeMedal(def: def, earned: earnedKey != null, size: 84),
+              const SizedBox(height: 14),
+              Text(def.title, style: AppText.display(26), textAlign: TextAlign.center),
+              const SizedBox(height: 6),
               Text(
-                'Earned on ${prettyDate(parseDayKey(earnedKey))}',
-                style: AppText.body(14, weight: FontWeight.w700, color: AppColors.success),
-              )
-            else ...[
-              SoftProgressBar(value: progress / def.target),
-              const SizedBox(height: 8),
-              Text('$progress of ${def.target}', style: AppText.body(13, color: AppColors.muted)),
+                def.description,
+                style: AppText.body(14, color: AppColors.muted),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              if (earnedKey != null)
+                Text(
+                  'Earned on ${prettyDate(parseDayKey(earnedKey))}',
+                  style: AppText.body(14, weight: FontWeight.w700, color: AppColors.success),
+                )
+              else ...[
+                SoftProgressBar(value: progress / def.target),
+                const SizedBox(height: 8),
+                Text('$progress of ${def.target}', style: AppText.body(13, color: AppColors.muted)),
+              ],
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: earnedKey != null
+                    ? FilledButton.icon(
+                        onPressed: () async {
+                          await Clipboard.setData(
+                            ClipboardData(text: 'I just earned the "${def.title}" badge on ${AppConfig.appName}!'),
+                          );
+                          if (ctx.mounted) Navigator.of(ctx).pop();
+                          if (context.mounted) showNotice(context, 'Copied. Paste it anywhere to share.');
+                        },
+                        icon: const Icon(Icons.ios_share),
+                        label: const Text('Copy to share'),
+                      )
+                    : OutlinedButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Keep going')),
+              ),
             ],
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: earnedKey != null
-                  ? FilledButton.icon(
-                      onPressed: () async {
-                        await Clipboard.setData(
-                          ClipboardData(text: 'I just earned the "${def.title}" badge on ${AppConfig.appName}!'),
-                        );
-                        if (ctx.mounted) Navigator.of(ctx).pop();
-                        if (context.mounted) showNotice(context, 'Copied. Paste it anywhere to share.');
-                      },
-                      icon: const Icon(Icons.ios_share),
-                      label: const Text('Copy to share'),
-                    )
-                  : OutlinedButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Keep going')),
-            ),
-          ],
+          ),
         ),
       ),
     ),

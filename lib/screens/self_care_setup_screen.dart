@@ -173,13 +173,12 @@ class _SelfCareSetupScreenState extends State<SelfCareSetupScreen> {
         physics: const NeverScrollableScrollPhysics(),
         mainAxisSpacing: 10,
         crossAxisSpacing: 10,
-        childAspectRatio: 2.3,
+        childAspectRatio: 1.9,
         children: [
           for (final c in kSelfCareCategories)
-            ChoicePill(
+            _CategoryCard(
               label: c.label,
-              icon: appIcon(c.icon),
-              expand: true,
+              iconName: c.icon,
               selected: _settings.categories.contains(c.id),
               onTap: () => setState(() {
                 if (!_settings.categories.remove(c.id)) _settings.categories.add(c.id);
@@ -234,6 +233,58 @@ class _DayButton extends StatelessWidget {
                 style: AppText.body(14, weight: FontWeight.w700, color: selected ? AppColors.onAccent : AppColors.ink),
               ),
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CategoryCard extends StatelessWidget {
+  const _CategoryCard({
+    required this.label,
+    required this.iconName,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final String iconName;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: selected ? AppColors.accent : AppColors.card,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: selected ? AppColors.accent : AppColors.line),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          child: Row(
+            children: [
+              Emoji3D(iconName, size: 36),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppText.body(
+                    14,
+                    weight: FontWeight.w700,
+                    color: selected ? AppColors.onAccent : AppColors.ink,
+                  ),
+                ),
+              ),
+              if (selected)
+                Icon(Icons.check_circle, size: 20, color: AppColors.onAccent),
+            ],
           ),
         ),
       ),

@@ -6,6 +6,47 @@ import '../theme/app_theme.dart';
 import '../widgets/common.dart';
 import 'home_shell.dart';
 
+// Habit ke naam se sahi icon - sirf wohi icon jo common.dart me hain
+String habitIconForTitle(String title) {
+  final n = title.toLowerCase().trim();
+  if (n.isEmpty) return 'focus';
+
+  if (n.contains('read') || n.contains('book') || n.contains('study') || n.contains('learn') || n.contains('quran') || n.contains('novel'))
+    return 'book';
+  if (n.contains('swim')) return 'swim';
+  if (n.contains('water') || n.contains('drink') || n.contains('pani')) return 'water';
+  if (n.contains('tv') || n.contains('drama') || n.contains('youtube') || n.contains('netflix')) return 'tv';
+  if (n.contains('movie') || n.contains('film') || n.contains('watch')) return 'movie';
+  if (n.contains('run') || n.contains('jog')) return 'run';
+  if (n.contains('walk')) return 'walk';
+  if (n.contains('gym') || n.contains('workout') || n.contains('exercise') || n.contains('yoga') || n.contains('stretch') || n.contains('push') || n.contains('plank')) return 'workout';
+  if (n.contains('cycle') || n.contains('bike')) return 'bike';
+  if (n.contains('dance')) return 'dance';
+  if (n.contains('sleep') || n.contains('nap') || n.contains('rest')) return 'sleep';
+  if (n.contains('meditat') || n.contains('breathe') || n.contains('calm') || n.contains('mindful')) return 'meditate';
+  if (n.contains('pray') || n.contains('namaz') || n.contains('dua')) return 'prayer';
+  if (n.contains('cook') || n.contains('food') || n.contains('eat') || n.contains('breakfast') || n.contains('lunch') || n.contains('dinner') || n.contains('diet')) return 'food';
+  if (n.contains('tea') || n.contains('coffee') || n.contains('chai')) return 'coffee';
+  if (n.contains('music') || n.contains('song') || n.contains('sing') || n.contains('guitar') || n.contains('piano')) return 'music';
+  if (n.contains('code') || n.contains('coding') || n.contains('program') || n.contains('computer') || n.contains('laptop')) return 'code';
+  if (n.contains('work') || n.contains('office') || n.contains('job') || n.contains('meeting')) return 'work';
+  if (n.contains('clean') || n.contains('room') || n.contains('house') || n.contains('wash') || n.contains('laundry')) return 'clean';
+  if (n.contains('money') || n.contains('save') || n.contains('budget')) return 'money';
+  if (n.contains('call') || n.contains('phone') || n.contains('family') || n.contains('friend') || n.contains('mother') || n.contains('father')) return 'call';
+  if (n.contains('journal') || n.contains('diary') || n.contains('write') || n.contains('gratitude')) return 'journal';
+  if (n.contains('draw') || n.contains('paint') || n.contains('art')) return 'art';
+  if (n.contains('plant') || n.contains('garden') || n.contains('nature') || n.contains('flower')) return 'plant';
+  if (n.contains('dog') || n.contains('cat') || n.contains('pet')) return 'pet';
+  if (n.contains('drive') || n.contains('car') || n.contains('travel') || n.contains('trip')) return 'car';
+  if (n.contains('shop') || n.contains('grocery') || n.contains('market') || n.contains('buy')) return 'shop';
+  if (n.contains('medicine') || n.contains('doctor') || n.contains('vitamin') || n.contains('health')) return 'health';
+  if (n.contains('school') || n.contains('college') || n.contains('university') || n.contains('homework') || n.contains('class') || n.contains('exam')) return 'school';
+  if (n.contains('sun') || n.contains('morning')) return 'sun';
+  if (n.contains('spa') || n.contains('beauty') || n.contains('shower') || n.contains('skin')) return 'spa';
+
+  return 'focus';
+}
+
 class HabitsScreen extends StatelessWidget {
   const HabitsScreen({super.key});
 
@@ -45,7 +86,7 @@ class HabitsScreen extends StatelessWidget {
                   onTap: () => showHabitEditor(context, habit: h),
                   child: Row(
                     children: [
-                      EmojiTile(h.icon),
+                      EmojiTile(habitIconForTitle(h.title)),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
@@ -117,7 +158,8 @@ class _HabitEditorSheetState extends State<HabitEditorSheet> {
   late DaySlot _slot = widget.habit?.slot ?? DaySlot.morning;
   late int _minutes = widget.habit?.minutes ?? 10;
   late int _lite = widget.habit?.liteMinutes ?? 5;
-  late String _icon = widget.habit?.icon ?? 'star';
+  late String _icon = habitIconForTitle(widget.habit?.title ?? '');
+  late bool _iconTouched = false;
   String? _error;
 
   bool get _isEdit => widget.habit != null;
@@ -136,14 +178,15 @@ class _HabitEditorSheetState extends State<HabitEditorSheet> {
     }
     final store = StoreScope.read(context);
     final lite = _lite > _minutes ? _minutes : _lite;
+    final finalIcon = _iconTouched ? _icon : habitIconForTitle(title);
     store.update((d) {
       if (_isEdit) {
         d.updateHabit(
-          Habit(id: widget.habit!.id, title: title, minutes: _minutes, liteMinutes: lite, slot: _slot, icon: _icon),
+          Habit(id: widget.habit!.id, title: title, minutes: _minutes, liteMinutes: lite, slot: _slot, icon: finalIcon),
         );
       } else {
         d.addHabit(
-          Habit(id: d.newId('habit'), title: title, minutes: _minutes, liteMinutes: lite, slot: _slot, icon: _icon),
+          Habit(id: d.newId('habit'), title: title, minutes: _minutes, liteMinutes: lite, slot: _slot, icon: finalIcon),
         );
       }
     });
@@ -176,8 +219,11 @@ class _HabitEditorSheetState extends State<HabitEditorSheet> {
               autofocus: !_isEdit,
               maxLength: 40,
               textCapitalization: TextCapitalization.sentences,
-              onChanged: (_) {
+              onChanged: (value) {
                 if (_error != null) setState(() => _error = null);
+                if (!_iconTouched) {
+                  setState(() => _icon = habitIconForTitle(value));
+                }
               },
               decoration: InputDecoration(hintText: 'e.g. Walk after lunch', errorText: _error, counterText: ''),
             ),
@@ -241,7 +287,10 @@ class _HabitEditorSheetState extends State<HabitEditorSheet> {
                       ),
                       clipBehavior: Clip.antiAlias,
                       child: InkWell(
-                        onTap: () => setState(() => _icon = key),
+                        onTap: () => setState(() {
+                          _icon = key;
+                          _iconTouched = true;
+                        }),
                         child: SizedBox(width: 48, height: 48, child: Center(child: Emoji3D(key, size: 30))),
                       ),
                     ),

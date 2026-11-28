@@ -4,12 +4,21 @@ import 'package:flutter/services.dart';
 import 'data/app_store.dart';
 import 'screens/home_shell.dart';
 import 'screens/onboarding_screen.dart';
+import 'core/notification_service.dart';
 import 'theme/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   final store = await AppStore.load();
+
+  // Notification ON - English
+  await NotificationService().init();
+  // Agar aaj koi habit nahi hai to yaad dilao
+  if (store.data.habits.isEmpty) {
+    await NotificationService().noHabitReminder();
+  }
+
   runApp(DayloopApp(store: store));
 }
 
